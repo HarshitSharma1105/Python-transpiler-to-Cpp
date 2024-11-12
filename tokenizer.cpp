@@ -126,27 +126,27 @@ public:
                     buffer.clear();
                 }
                 else if(buffer=="if"){
-                    tokens.push_back({Tokentype::if_,""});
+                    tokens.push_back({Tokentype::if_,"if"});
                     buffer.clear();
                 }
                 else if(buffer=="else"){
-                    tokens.push_back({Tokentype::else_,""});
+                    tokens.push_back({Tokentype::else_,"else "});
                     buffer.clear();
                 }
                 else if(buffer=="elif"){
-                    tokens.push_back({Tokentype::elif_,""});
+                    tokens.push_back({Tokentype::elif_,"else if"});
                     buffer.clear();
                 }
                 else if(buffer=="and"){
-                    tokens.push_back({Tokentype::and_,""});
+                    tokens.push_back({Tokentype::and_,"&&"});
                     buffer.clear();
                 }
                 else if(buffer=="or"){
-                    tokens.push_back({Tokentype::or_,""});
+                    tokens.push_back({Tokentype::or_,"||"});
                     buffer.clear();
                 }
                 else if(buffer=="not"){
-                    tokens.push_back({Tokentype::not_,""});
+                    tokens.push_back({Tokentype::not_,"!"});
                     buffer.clear();
                 }
                 else { 
@@ -155,16 +155,16 @@ public:
                 }
             }
             else if(peek()=='('){
-                tokens.push_back({Tokentype::open_paren,""});
+                tokens.push_back({Tokentype::open_paren,"("});
                 consume();
             }
             else if(peek()==')'){
-                tokens.push_back({Tokentype::closed_paren,""});
+                tokens.push_back({Tokentype::closed_paren,")"});
                 consume();
             }
             else if(peek()=='"'){
-                if(check(Tokentype::open_double,Tokentype::closed_double))tokens.push_back({Tokentype::open_double,""});
-                else tokens.push_back({Tokentype::closed_double,""});
+                if(check(Tokentype::open_double,Tokentype::closed_double))tokens.push_back({Tokentype::open_double,"\""});
+                else tokens.push_back({Tokentype::closed_double,"\""});
                 consume();
                 buffer.clear();
             }
@@ -180,55 +180,55 @@ public:
             // } 
             else if (peek()=='='){
                 if(peek(1)=='='){
-                tokens.push_back({Tokentype::equals,""});
+                tokens.push_back({Tokentype::equals,"=="});
                 consume();
                 }
                 else{
-                    tokens.push_back({Tokentype::assignment,""});
+                    tokens.push_back({Tokentype::assignment,"="});
                 }
                 consume();
                 buffer.clear();
             }
             else if(peek()=='!' ){
                 if(peek(1)=='='){
-                    tokens.push_back({Tokentype::notequals,""});
+                    tokens.push_back({Tokentype::notequals,"!="});
                     consume();
                 }
                 else{
-                    tokens.push_back({Tokentype::not_,""});
+                    tokens.push_back({Tokentype::not_,"!"});
                 }
                 consume();
                 buffer.clear();
             }
             else if(peek()=='<'){
                 if(peek(1)=='='){
-                    tokens.push_back({Tokentype::lessequals,""});
+                    tokens.push_back({Tokentype::lessequals,"<="});
                     consume();
                 }
                 else{
-                    tokens.push_back({Tokentype::less,""});
+                    tokens.push_back({Tokentype::less,"<"});
                 }
                 consume();
                 buffer.clear();
             }
             else if(peek()=='>' ){
                 if(peek(1)=='='){
-                    tokens.push_back({Tokentype::greaterequals,""});
+                    tokens.push_back({Tokentype::greaterequals,">="});
                     consume();
                 }
                 else{
-                    tokens.push_back({Tokentype::greater,""});
+                    tokens.push_back({Tokentype::greater,">"});
                 }
                 consume();
                 buffer.clear();
             }
             else if(peek()=='&'){
-                tokens.push_back({Tokentype::bitwise_and,""});
+                tokens.push_back({Tokentype::bitwise_and,"&"});
                 consume();
                 buffer.clear();
             }
             else if(peek()=='|'){
-                tokens.push_back({Tokentype::bitwise_or,""});
+                tokens.push_back({Tokentype::bitwise_or,"|"});
                 consume();
                 buffer.clear();
             }
@@ -259,44 +259,44 @@ public:
             }
             else if(peek()=='+'){
                 if(peek(1)=='='){
-                    tokens.push_back({Tokentype::plusequals,""});
+                    tokens.push_back({Tokentype::plusequals,"+="});
                     consume();
                 }
                 else{
-                    tokens.push_back({Tokentype::plus,""});
+                    tokens.push_back({Tokentype::plus,"+"});
                 }
                 consume();
                 buffer.clear();
             }
             else if(peek()=='-'){
                 if(peek(1)=='='){
-                    tokens.push_back({Tokentype::minusequals,""});
+                    tokens.push_back({Tokentype::minusequals,"-="});
                     consume();
                 }
                 else{
-                    tokens.push_back({Tokentype::plus,""});
+                    tokens.push_back({Tokentype::plus,"-"});
                 }
                 consume();
                 buffer.clear();
             }
             else if(peek()=='*'){
                 if(peek(1)=='='){
-                    tokens.push_back({Tokentype::mutliplyequals,""});
+                    tokens.push_back({Tokentype::mutliplyequals,"*="});
                     consume();
                 }
                 else{
-                    tokens.push_back({Tokentype::mutliply,""});
+                    tokens.push_back({Tokentype::mutliply,"*"});
                 }
                 consume();
                 buffer.clear();
             }
             else if(peek()=='/'){
                 if(peek(1)=='='){
-                    tokens.push_back({Tokentype::divideequals,""});
+                    tokens.push_back({Tokentype::divideequals,"/="});
                     consume();
                 }
                 else{
-                    tokens.push_back({Tokentype::divide,""});
+                    tokens.push_back({Tokentype::divide,"/"});
                 }
                 consume();
                 buffer.clear();
