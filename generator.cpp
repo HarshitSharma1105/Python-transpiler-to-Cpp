@@ -8,7 +8,8 @@ public:
         open();
         for(const NodeStmt* nodestmt:nodeprog.NodeStmts){
             if(nodestmt->type==TypeNodeStmt::Print)generate_print(nodestmt);
-            else if(nodestmt->type==TypeNodeStmt::Int || nodestmt->type==TypeNodeStmt::Float)generate_assign_float(nodestmt);
+            else if(nodestmt->type==TypeNodeStmt::Int)generate_assign_int(nodestmt);
+            else if(nodestmt->type==TypeNodeStmt::Float)generate_assign_float(nodestmt);
             else if(nodestmt->type==TypeNodeStmt::String)generate_assign_string(nodestmt);
         }
         close();
@@ -27,8 +28,11 @@ private:
     void generate_assign_string(const NodeStmt* nodestmt){
         stream << "    string " << nodestmt->var->String->String.val << ";\n";
     }
+    void generate_assign_int(const NodeStmt* nodestmt){
+        stream << "    int " << nodestmt->var->Int->Int.val <<";\n";
+    }
     void generate_assign_float(const NodeStmt* nodestmt){
-        stream << "    int " << nodestmt->var->String->String.val <<";\n";
+        stream << "    float " << nodestmt->var->Float->Float.val <<";\n";
     }
     void open(){
         stream << "#include<iostream>\n";

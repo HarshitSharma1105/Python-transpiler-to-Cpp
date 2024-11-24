@@ -41,7 +41,8 @@ plus,
 minus,
 mutliply,
 divide,
-dontread
+endofline,
+endoffile
 };
 
 struct Token{
@@ -90,7 +91,8 @@ void debug(const Tokentype& token){
         case minus:           std::cout << "minus"; break;
         case divide:          std::cout << "divide"; break;
         case mutliply:        std::cout << "star"; break;
-        case dontread:        std::cout << "dontread";break;
+        case endofline:       std::cout << "end of line";break;
+        case endoffile:       std::cout << "end of file";break;
         default:              std::cout << "Unknown token"; break;
     }
 }
@@ -147,6 +149,10 @@ public:
                 }
                 else if(buffer=="not"){
                     tokens.push_back({Tokentype::not_,"!"});
+                    buffer.clear();
+                }
+                else if(buffer=="LINEEND"){
+                    //tokens.push_back({Tokentype::endofline,""});
                     buffer.clear();
                 }
                 else { 
@@ -314,7 +320,7 @@ public:
             }
             else if(peek()=='\0'){
                 consume();
-                tokens.push_back({Tokentype::dontread,""});
+                tokens.push_back({Tokentype::endoffile,""});
                 break;
             }
             else {
