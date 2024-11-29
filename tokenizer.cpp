@@ -9,8 +9,6 @@ open_paren,
 closed_paren,
 open_double,
 closed_double,
-open_single,
-closed_single,
 string_lit,
 integer_lit,
 float_lit,
@@ -59,25 +57,23 @@ void debug(const Tokentype& token){
         case closed_paren:    std::cout << "closed_paren"; break;
         case open_double:     std::cout << "open_double"; break;
         case closed_double:   std::cout << "closed_double"; break;
-        case open_single:     std::cout << "open_single"; break;
-        case closed_single:   std::cout << "closed_single"; break;
         case string_lit:      std::cout << "string_lit"; break;
         case integer_lit:     std::cout << "integer_lit"; break;
         case float_lit:       std::cout << "float_lit"; break;
         case assignment:      std::cout << "assignment"; break;
         case identifier:      std::cout << "identifier"; break;
-        case if_:             std::cout << "if_"; break;
-        case elif_:           std::cout << "elif_"; break;
-        case else_:           std::cout << "else_"; break;
+        case if_:             std::cout << "if"; break;
+        case elif_:           std::cout << "elif"; break;
+        case else_:           std::cout << "else"; break;
         case equals:          std::cout << "equals"; break;
         case notequals:       std::cout << "notequals"; break;
-        case not_:            std::cout << "not_"; break;
+        case not_:            std::cout << "not"; break;
         case lessequals:      std::cout << "lessequals"; break;
         case less:            std::cout << "less"; break;
         case greaterequals:   std::cout << "greaterequals"; break;
         case greater:         std::cout << "greater"; break;
-        case or_:             std::cout << "or_"; break;
-        case and_:            std::cout << "and_"; break;
+        case or_:             std::cout << "or"; break;
+        case and_:            std::cout << "and"; break;
         case bitwise_or:      std::cout << "bitwise_or"; break;
         case bitwise_and:     std::cout << "bitwise_and"; break;
         case dot:             std::cout << "dot"; break;
@@ -96,10 +92,20 @@ void debug(const Tokentype& token){
         default:              std::cout << "Unknown token"; break;
     }
 }
+void debug(const std::vector<Token> tokens){
+    std::cout << "-----\n";
+        for(const Token& token:tokens){
+            debug(token.type);
+            std::cout<< " " << token.val << std::endl;
+        }
+    std::cout << "-----\n";
+}
+
 class Tokenizer{
 public:
     Tokenizer(const std::string& src): src(src){}
-    std::vector<Token> tokenize(){
+    std::vector<Token> tokenize()
+    {
         std::vector<Token> tokens;
         std::string buffer;
         auto check=[&](Tokentype type1,Tokentype type2){
@@ -111,83 +117,91 @@ public:
             return val==0;
         };
         while(peek()!='@'){
-            if(tokens.size() && tokens.back().type==Tokentype::open_double){
+            if(tokens.size() && tokens.back().type==Tokentype::open_double)
+            {
                 while (peek()!='"' && peek()!='\0') {
                     buffer.push_back(consume());
                 }
                 tokens.push_back({Tokentype::string_lit,buffer});
                 buffer.clear();
             }
-            if(std::isalpha(peek())){
+            if(std::isalpha(peek()))
+            {
                 buffer.push_back(consume());
-                while (std::isalnum(peek())) {
+                while (std::isalnum(peek()))
+                {
                     buffer.push_back(consume());
                 }
-                if(buffer=="print"){
+                if(buffer=="print")
+                {
                     tokens.push_back({Tokentype::print,""});
                     buffer.clear();
                 }
-                else if(buffer=="if"){
+                else if(buffer=="if")
+                {
                     tokens.push_back({Tokentype::if_,"if"});
                     buffer.clear();
                 }
-                else if(buffer=="else"){
+                else if(buffer=="else")
+                {
                     tokens.push_back({Tokentype::else_,"else "});
                     buffer.clear();
                 }
-                else if(buffer=="elif"){
+                else if(buffer=="elif")
+                {
                     tokens.push_back({Tokentype::elif_,"else if"});
                     buffer.clear();
                 }
-                else if(buffer=="and"){
+                else if(buffer=="and")
+                {
                     tokens.push_back({Tokentype::and_,"&&"});
                     buffer.clear();
                 }
-                else if(buffer=="or"){
+                else if(buffer=="or")
+                {
                     tokens.push_back({Tokentype::or_,"||"});
                     buffer.clear();
                 }
-                else if(buffer=="not"){
+                else if(buffer=="not")
+                {
                     tokens.push_back({Tokentype::not_,"!"});
                     buffer.clear();
                 }
-                else if(buffer=="LINEEND"){
-                    //tokens.push_back({Tokentype::endofline,""});
+                else if(buffer=="LINEEND")
+                {
+                    tokens.push_back({Tokentype::endofline,""});
                     buffer.clear();
                 }
-                else { 
+                else 
+                { 
                     tokens.push_back({Tokentype::identifier,buffer});
                     buffer.clear();
                 }
             }
-            else if(peek()=='('){
+            else if(peek()=='(')
+            {
                 tokens.push_back({Tokentype::open_paren,"("});
                 consume();
             }
-            else if(peek()==')'){
+            else if(peek()==')')
+            {
                 tokens.push_back({Tokentype::closed_paren,")"});
                 consume();
             }
-            else if(peek()=='"'){
+            else if(peek()=='"')
+            {
                 if(check(Tokentype::open_double,Tokentype::closed_double))tokens.push_back({Tokentype::open_double,"\""});
                 else tokens.push_back({Tokentype::closed_double,"\""});
                 consume();
                 buffer.clear();
             }
-            // else if(peek()=='\''){
-            //     std::cout << "fucker\n";
-            //     if(check(Tokentype::open_single,Tokentype::closed_single))tokens.push_back({Tokentype::open_single,""});
-            //     else {
-            //         std::cout << "fucking\n";
-            //         tokens.push_back({Tokentype::closed_single,""});
-            //     }
-            //     consume();
-            //     buffer.clear();
-            // } 
-            else if (peek()=='='){
-                if(peek(1)=='='){
-                tokens.push_back({Tokentype::equals,"=="});
-                consume();
+           
+            else if (peek()=='=')
+            {
+                if(peek(1)=='=')
+                {
+                    tokens.push_back({Tokentype::equals,"=="});
+                    consume();
                 }
                 else{
                     tokens.push_back({Tokentype::assignment,"="});
@@ -195,51 +209,65 @@ public:
                 consume();
                 buffer.clear();
             }
-            else if(peek()=='!' ){
-                if(peek(1)=='='){
+            else if(peek()=='!' )
+            {
+                if(peek(1)=='=')
+                {
                     tokens.push_back({Tokentype::notequals,"!="});
                     consume();
                 }
-                else{
+                else
+                {
                     tokens.push_back({Tokentype::not_,"!"});
                 }
                 consume();
                 buffer.clear();
             }
-            else if(peek()=='<'){
-                if(peek(1)=='='){
+            else if(peek()=='<')
+            {
+                if(peek(1)=='=')
+                {
                     tokens.push_back({Tokentype::lessequals,"<="});
                     consume();
                 }
-                else{
+                else
+                {
+
                     tokens.push_back({Tokentype::less,"<"});
                 }
                 consume();
                 buffer.clear();
             }
-            else if(peek()=='>' ){
-                if(peek(1)=='='){
+            else if(peek()=='>' )
+            {
+                if(peek(1)=='=')
+                {
                     tokens.push_back({Tokentype::greaterequals,">="});
                     consume();
                 }
-                else{
+                else
+                {
                     tokens.push_back({Tokentype::greater,">"});
                 }
                 consume();
                 buffer.clear();
             }
-            else if(peek()=='&'){
+            else if(peek()=='&')
+            {
                 tokens.push_back({Tokentype::bitwise_and,"&"});
                 consume();
                 buffer.clear();
             }
-            else if(peek()=='|'){
+            else if(peek()=='|')
+            {
                 tokens.push_back({Tokentype::bitwise_or,"|"});
                 consume();
                 buffer.clear();
             }
-            else if(peek()=='.'){
-                if(tokens.size() && tokens.back().type==Tokentype::integer_lit){
+            else if(peek()=='.')
+            {
+                if(tokens.size() && tokens.back().type==Tokentype::integer_lit)
+                {
                     buffer=tokens.back().val;
                     buffer.push_back(consume());
                     while(std::isdigit(peek())){
@@ -248,89 +276,108 @@ public:
                     tokens.back()={Tokentype::float_lit,buffer};
                     buffer.clear();
                 }
-                else {
+                else 
+                {
                     tokens.push_back({Tokentype::dot,""});
                     consume();
                 }
             }
-            else if(peek()==':'){
+            else if(peek()==':')
+            {
                 tokens.push_back({Tokentype::colon,""});
                 consume();
                 buffer.clear();
             }
-            else if(peek()==','){
+            else if(peek()==',')
+            {
                 tokens.push_back({Tokentype::comma,""});
                 consume();
                 buffer.clear();
             }
-            else if(peek()=='+'){
-                if(peek(1)=='='){
+            else if(peek()=='+')
+            {
+                if(peek(1)=='=')
+                {
                     tokens.push_back({Tokentype::plusequals,"+="});
                     consume();
                 }
-                else{
+                else
+                {
                     tokens.push_back({Tokentype::plus,"+"});
                 }
                 consume();
                 buffer.clear();
             }
-            else if(peek()=='-'){
-                if(peek(1)=='='){
+            else if(peek()=='-')
+            {
+                if(peek(1)=='=')
+                {
                     tokens.push_back({Tokentype::minusequals,"-="});
                     consume();
                 }
-                else{
+                else
+                {
                     tokens.push_back({Tokentype::plus,"-"});
                 }
                 consume();
                 buffer.clear();
             }
-            else if(peek()=='*'){
-                if(peek(1)=='='){
+            else if(peek()=='*')
+            {
+                if(peek(1)=='=')
+                {
                     tokens.push_back({Tokentype::mutliplyequals,"*="});
                     consume();
                 }
-                else{
+                else
+                {
                     tokens.push_back({Tokentype::mutliply,"*"});
                 }
                 consume();
                 buffer.clear();
             }
-            else if(peek()=='/'){
-                if(peek(1)=='='){
+            else if(peek()=='/')
+            {
+                if(peek(1)=='=')
+                {
                     tokens.push_back({Tokentype::divideequals,"/="});
                     consume();
                 }
-                else{
+                else
+                {
                     tokens.push_back({Tokentype::divide,"/"});
                 }
                 consume();
                 buffer.clear();
             }
-            else if (std::isdigit(peek())) {
+            else if (std::isdigit(peek())) 
+            {
                 buffer.push_back(consume());
-                while (std::isdigit(peek())) {
+                while (std::isdigit(peek())) 
+                {
                     buffer.push_back(consume());
                 }
                 tokens.push_back({Tokentype::integer_lit,buffer});
                 buffer.clear();
             }
-            else if(std::isspace(peek())){
+            else if(std::isspace(peek()))
+            {
                 consume();
             }
-            else if(peek()=='\0'){
+            else if(peek()=='\0')
+            {
                 consume();
                 tokens.push_back({Tokentype::endoffile,""});
                 break;
             }
-            else {
-                // std::cout << buffer << std::endl;
-                // for(const Token& token:tokens){
-                //     std::cout << token.type << " " << token.val << std::endl;
-                // }
+            else
+            {
                 std::cerr << "errorrred\n";
                 exit(EXIT_FAILURE);
             }
+        }
+        for(Token& token:tokens){
+            if(token.type==Tokentype::integer_lit)token.type=Tokentype::float_lit;
         }
         return tokens;
     }

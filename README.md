@@ -1,8 +1,8 @@
 # Python-transpiler-to-Cpp
-For transpiling:
+For transpiling with debugging:
 
-g++ main.cpp -o main ; ./main test.py fuck transpile
+g++ main.cpp -o main ; ./main test.py filename transpile debug
 
-For interpreting:
+For interpreting with no debugging:
 
-g++ main.cpp -o main ; ./main test.py fuck interpret
+g++ main.cpp -o main ; ./main test.py filename interpret nodebug
