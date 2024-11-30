@@ -8,15 +8,6 @@ struct NodeExpr{
     std::string expr;
 };
 
-enum TypeNodeStmt{
-    Assign,
-    Print
-};
-
-struct NodeStmt{
-    NodeExpr* var;
-    TypeNodeStmt type;
-};
 
 class Parser{
 public:
@@ -26,38 +17,36 @@ public:
         open();
         while(peek().type!=Tokentype::endoffile)
         {
-            NodeStmt* nodestmt=new NodeStmt();
-            nodestmt->var=new NodeExpr();
+            NodeExpr* Nodeexpr=new NodeExpr();
             if(peek().type==Tokentype::print)
             {
                 consume();
                 try_consume(Tokentype::open_paren,"expected '('");
                 while(peek().type!=Tokentype::endofline){
-                    nodestmt->var->expr+=peek().val;
-                    if(peek().type==Tokentype::identifier)nodestmt->var->identifiertokens.push_back(peek());
-                    else if(peek().type==Tokentype::float_lit || peek().type==Tokentype::string_lit) nodestmt->var->literals.push_back(peek());
+                    Nodeexpr->expr+=peek().val;
+                    if(peek().type==Tokentype::identifier)Nodeexpr->identifiertokens.push_back(peek());
+                    else if(peek().type==Tokentype::float_lit || peek().type==Tokentype::string_lit) Nodeexpr->literals.push_back(peek());
                     consume();
                 }
-                nodestmt->var->expr.pop_back();
-                nodestmt->type=TypeNodeStmt::Print;
-                generate_print(nodestmt);
+                Nodeexpr->expr.pop_back();
+                generate_print(Nodeexpr);
                 //try_consume(Tokentype::closed_paren," expected ')");
                 consume();//EOL
             } 
             else if(peek().type==Tokentype::identifier)
             {
-                nodestmt->var->expr+=consume().val;
+                Nodeexpr->expr+=consume().val;
                 bool assign=false;
                 if(peek().type==Tokentype::assignment){
                     assign=true;
                 }
                 while(peek().type!=Tokentype::endofline){
-                    nodestmt->var->expr+=peek().val;
-                    if(peek().type==Tokentype::identifier)nodestmt->var->identifiertokens.push_back(consume());
-                    else nodestmt->var->literals.push_back(consume());
+                    Nodeexpr->expr+=peek().val;
+                    if(peek().type==Tokentype::identifier)Nodeexpr->identifiertokens.push_back(peek());
+                    else if(peek().type==Tokentype::float_lit || peek().type==Tokentype::string_lit)Nodeexpr->literals.push_back(peek());
+                    consume();
                 }
-                nodestmt->type=TypeNodeStmt::Assign;
-                generate_assign(nodestmt);
+                generate_assign(Nodeexpr);
                 consume();//EOL
             }  
             else{
@@ -68,50 +57,57 @@ public:
         }
         close();
     }   
-    std::string generate(){
+    std::string generate()
+    {
         return stream.str();
     }
 private:
-    void generate_print(const NodeStmt* nodestmt){
-        //check_for_type_error(nodestmt);
-        stream << "    cout << " << nodestmt->var->expr << " << endl;\n";
+    void generate_print(const NodeExpr* Nodeexpr){
+        check_for_error(Nodeexpr,false);
+        stream << "  cout << " << Nodeexpr->expr << " << endl;\n";
     }
-    void generate_assign(const NodeStmt* nodestmt){
-        //check_for_type_error(nodestmt);
-        stream << "  auto " << nodestmt->var->expr << ";\n";
+    void generate_assign(const NodeExpr* Nodeexpr){
+        check_for_error(Nodeexpr,true);
     }
-    void generate_assign_string(const NodeStmt* nodestmt){
-        bool float_lit_check=std::any_of(nodestmt->var->literals.cbegin(),nodestmt->var->literals.cend(),
+    void generate_assign_string(const NodeExpr* Nodeexpr){
+        stream << "  string " << Nodeexpr->expr << ";\n";
+    }
+    void generate_assign_float(const NodeExpr* Nodeexpr){
+        stream << "  float " << Nodeexpr->expr << ";\n";
+    }
+    void check_for_error(const NodeExpr* Nodeexpr,bool isassign){
+        check_for_type_error(Nodeexpr,isassign);
+        check_for_unitiliazed_errors(Nodeexpr);
+    }
+    void check_for_type_error(const NodeExpr* Nodeexpr,bool isassign){
+        bool float_lit_check=std::any_of(Nodeexpr->literals.cbegin(),Nodeexpr->literals.cend(),
         [](Token token){ return token.type==Tokentype::float_lit;});
-        bool string_lit_check=std::any_of(nodestmt->var->literals.cbegin(),nodestmt->var->literals.cend(),
+        bool string_lit_check=std::any_of(Nodeexpr->literals.cbegin(),Nodeexpr->literals.cend(),
         [](Token token){ return token.type==Tokentype::string_lit;});
-        if(float_lit_check)
+        if(isassign)
         {
-
+            if(float_lit_check && string_lit_check)
+            {
+                std::cerr << " type error found\n";
+            }
+            else if(float_lit_check)
+            {
+                generate_assign_float(Nodeexpr);
+            }
+            else if(string_lit_check)
+            {
+                generate_assign_string(Nodeexpr);
+            }
         }
     }
-    void generate_assign_float(const NodeStmt* nodestmt){
-        
-    }
-    void check_for_error(const NodeStmt* nodestmt){
-        check_for_type_error(nodestmt);
-        check_for_unitiliazed_errors(nodestmt);
-    }
-    void check_for_type_error(const NodeStmt* nodestmt){
-        bool float_lit_check=std::any_of(nodestmt->var->literals.cbegin(),nodestmt->var->literals.cend(),
-        [](Token token){ return token.type==Tokentype::float_lit;});
-        bool string_lit_check=std::any_of(nodestmt->var->literals.cbegin(),nodestmt->var->literals.cend(),
-        [](Token token){ return token.type==Tokentype::string_lit;});
-
-    }
-    void check_for_unitiliazed_errors(const NodeStmt* nodestmt){
-        bool check=std::any_of(nodestmt->var->identifiertokens.cbegin(),nodestmt->var->identifiertokens.cend(),
-        [this](Token token){return stringmap.count(token.val)==0 && floatmap.count(token.val)==0;});
-        if(check)
-        {
-            std::cerr << "unitialized variable\n";
-            exit(EXIT_FAILURE);
-        }
+    void check_for_unitiliazed_errors(const NodeExpr* Nodeexpr){
+        // bool check=std::any_of(Nodeexpr->identifiertokens.cbegin(),Nodeexpr->identifiertokens.cend(),
+        // [this](Token token){return stringmap.count(token.val)==0 && floatmap.count(token.val)==0;});
+        // if(check)
+        // {
+        //     std::cerr << "unitialized variable\n";
+        //     exit(EXIT_FAILURE);
+        // }
     }
     void open()
     {
@@ -121,7 +117,7 @@ private:
     }
     void close()
     {
-        stream << "    return 0;\n";
+        stream << "  return 0;\n";
         stream << "}";
     }
     Token peek(int offset=0){
