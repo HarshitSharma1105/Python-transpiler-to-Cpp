@@ -2,7 +2,7 @@
 #include"parser.cpp"
 
 int main(int argc,char* argv[]){
-    if(argc<3)
+    if(argc<2)
     {
         std::cerr << "give atleast 3 parameters\n";
         exit(EXIT_FAILURE);
@@ -16,8 +16,8 @@ int main(int argc,char* argv[]){
             source += line + "LINEEND\n";
         }
     }
-    std::string filename=argv[2];
-    bool debugging=(std::string)argv[3]=="debug";
+    std::string filename="done";
+    bool debugging=(std::string)argv[2]=="debug";
     source.push_back('\0');
     Tokenizer tokenizer(source);
     std::vector<Token> tokens=tokenizer.tokenize();
@@ -36,7 +36,7 @@ int main(int argc,char* argv[]){
     }
     std::string compilecommand="g++ "+filename+ ".cpp "+ "-o " + filename;
     system(compilecommand.c_str());
-    system(argv[2]);
+    system(filename.c_str());
     system(("del "+  cppname).c_str());
     system(("del "+ filename + ".exe").c_str());
     exit(EXIT_SUCCESS);
