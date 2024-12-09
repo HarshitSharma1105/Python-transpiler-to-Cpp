@@ -37,11 +37,7 @@ public:
             else if(peek().type==Tokentype::identifier)
             {
                 Nodeexpr->expr+=consume().val;
-                bool assign=false;
-                if(peek().type==Tokentype::assignment){
-                    assign=true;
-                    Nodeexpr->identifier=Nodeexpr->expr;
-                }
+                Nodeexpr->identifier=Nodeexpr->expr;
                 while(peek().type!=Tokentype::endofline){
                     Nodeexpr->expr+=peek().val;
                     if(peek().type==Tokentype::identifier)Nodeexpr->identifiertokens.push_back(peek());
@@ -62,30 +58,46 @@ public:
     }   
 private:
     void generate_print(const NodeExpr* Nodeexpr){
-        check_for_error(Nodeexpr,false);
+        check_for_error(Nodeexpr,true);
         stream << "  cout << " << Nodeexpr->expr << " << endl;\n";
     }
     void generate_assign(const NodeExpr* Nodeexpr){
-        check_for_error(Nodeexpr,true);
+        check_for_error(Nodeexpr,false);
     }
-    void generate_assign_string(const NodeExpr* Nodeexpr){
-        stringmap.insert(Nodeexpr->identifier);
-        stream << "  string " << Nodeexpr->expr << ";\n";
+    void generate_assign_string(const NodeExpr* Nodeexpr,bool isassign){
+        if(isassign)
+        {
+            stringmap.insert(Nodeexpr->identifier);
+            stream << "  string " << Nodeexpr->expr << ";\n";
+        }
+        else 
+        {
+            stream << "  " << Nodeexpr->expr << ";\n";
+        }
     }
-    void generate_assign_float(const NodeExpr* Nodeexpr){
-        floatmap.insert(Nodeexpr->identifier);
-        stream << "  float " << Nodeexpr->expr << ";\n";
+    void generate_assign_float(const NodeExpr* Nodeexpr,bool isassign){
+        if(isassign)
+        {
+            floatmap.insert(Nodeexpr->identifier);
+            stream << "  float " << Nodeexpr->expr << ";\n";
+        }
+        else 
+        {
+            stream << "  " << Nodeexpr->expr << ";\n";
+        }
     }
-    void check_for_error(const NodeExpr* Nodeexpr,bool isassign){
-        check_for_type_error(Nodeexpr,isassign);
+    
+
+    void check_for_error(const NodeExpr* Nodeexpr,bool isprint){
+        check_for_type_error(Nodeexpr,isprint);
         check_for_unitiliazed_errors(Nodeexpr);
     }
-    void check_for_type_error(const NodeExpr* Nodeexpr,bool isassign){
+    void check_for_type_error(const NodeExpr* Nodeexpr,bool isprint){
         bool float_lit_check=std::any_of(Nodeexpr->literals.cbegin(),Nodeexpr->literals.cend(),
         [](Token token){ return token.type==Tokentype::float_lit;});
         bool string_lit_check=std::any_of(Nodeexpr->literals.cbegin(),Nodeexpr->literals.cend(),
         [](Token token){ return token.type==Tokentype::string_lit;});
-        if(isassign)
+        if(!isprint)
         {
             if(float_lit_check && string_lit_check)
             {
@@ -94,20 +106,26 @@ private:
             }
             else if(float_lit_check)
             {
-                generate_assign_float(Nodeexpr);
+                bool assign=floatmap.count(Nodeexpr->identifier)==0;
+                generate_assign_float(Nodeexpr,assign);
             }
             else if(string_lit_check)
             {
-                generate_assign_string(Nodeexpr);
+                bool assign=stringmap.count(Nodeexpr->identifier)==0;
+                generate_assign_string(Nodeexpr,assign);
+            }  
+            else 
+            {
+                
             }
         }
     }
     void check_for_unitiliazed_errors(const NodeExpr* Nodeexpr){
         bool check=std::any_of(Nodeexpr->identifiertokens.cbegin(),Nodeexpr->identifiertokens.cend(),
-        [this](Token token){return stringmap.count(token.val)==0 && floatmap.count(token.val)==0;});
+        [this](const Token& token){return stringmap.count(token.val)==0 && floatmap.count(token.val)==0;});
         if(check)
         {
-            std::cerr << "unitialized variable\n";
+            std::cerr << "unitialized variable\n" << Nodeexpr->expr;
             exit(EXIT_FAILURE);
         }
     }

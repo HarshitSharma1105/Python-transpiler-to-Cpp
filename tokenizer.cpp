@@ -93,12 +93,10 @@ void debug(const Tokentype& token){
     }
 }
 void debug(const std::vector<Token> tokens){
-    std::cout << "-----\n";
         for(const Token& token:tokens){
             debug(token.type);
             std::cout<< " " << token.val << std::endl;
         }
-    std::cout << "-----\n";
 }
 
 class Tokenizer{
