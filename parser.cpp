@@ -6,6 +6,7 @@ struct NodeExpr{
     std::vector<Token> identifiertokens;
     std::vector<Token> literals;
     std::string expr;
+    std::string identifier;
 };
 
 
@@ -39,6 +40,7 @@ public:
                 bool assign=false;
                 if(peek().type==Tokentype::assignment){
                     assign=true;
+                    Nodeexpr->identifier=Nodeexpr->expr;
                 }
                 while(peek().type!=Tokentype::endofline){
                     Nodeexpr->expr+=peek().val;
@@ -67,9 +69,11 @@ private:
         check_for_error(Nodeexpr,true);
     }
     void generate_assign_string(const NodeExpr* Nodeexpr){
+        stringmap.insert(Nodeexpr->identifier);
         stream << "  string " << Nodeexpr->expr << ";\n";
     }
     void generate_assign_float(const NodeExpr* Nodeexpr){
+        floatmap.insert(Nodeexpr->identifier);
         stream << "  float " << Nodeexpr->expr << ";\n";
     }
     void check_for_error(const NodeExpr* Nodeexpr,bool isassign){
@@ -99,13 +103,13 @@ private:
         }
     }
     void check_for_unitiliazed_errors(const NodeExpr* Nodeexpr){
-        // bool check=std::any_of(Nodeexpr->identifiertokens.cbegin(),Nodeexpr->identifiertokens.cend(),
-        // [this](Token token){return stringmap.count(token.val)==0 && floatmap.count(token.val)==0;});
-        // if(check)
-        // {
-        //     std::cerr << "unitialized variable\n";
-        //     exit(EXIT_FAILURE);
-        // }
+        bool check=std::any_of(Nodeexpr->identifiertokens.cbegin(),Nodeexpr->identifiertokens.cend(),
+        [this](Token token){return stringmap.count(token.val)==0 && floatmap.count(token.val)==0;});
+        if(check)
+        {
+            std::cerr << "unitialized variable\n";
+            exit(EXIT_FAILURE);
+        }
     }
     void open()
     {
