@@ -1,4 +1,3 @@
-b="hello world"
-print(b)
-c=3
-print(c/2.089)
+a=4
+r=10
+c=3+(10*r)+(r/a)*(a+2)*(a+7)

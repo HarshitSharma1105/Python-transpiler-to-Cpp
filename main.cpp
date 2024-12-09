@@ -22,8 +22,7 @@ int main(int argc,char* argv[]){
     Tokenizer tokenizer(source);
     std::vector<Token> tokens=tokenizer.tokenize();
     Parser parser(tokens);
-    parser.parse();
-    std::string cppsourcecode=parser.generate();
+    std::string cppsourcecode=parser.parse();
     if(debugging)
     {
         debug(tokens);

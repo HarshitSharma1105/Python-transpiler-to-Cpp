@@ -12,7 +12,7 @@ struct NodeExpr{
 class Parser{
 public:
     Parser(const std::vector<Token>& tokens): tokens(tokens){}
-    void parse()
+    std::string parse()
     {
         open();
         while(peek().type!=Tokentype::endoffile)
@@ -56,11 +56,8 @@ public:
             }
         }
         close();
-    }   
-    std::string generate()
-    {
         return stream.str();
-    }
+    }   
 private:
     void generate_print(const NodeExpr* Nodeexpr){
         check_for_error(Nodeexpr,false);
@@ -89,6 +86,7 @@ private:
             if(float_lit_check && string_lit_check)
             {
                 std::cerr << " type error found\n";
+                exit(EXIT_FAILURE);
             }
             else if(float_lit_check)
             {
