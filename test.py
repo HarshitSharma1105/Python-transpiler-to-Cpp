@@ -1,6 +1,6 @@
 a=4
 r=10
-c=a+r+2
+c=a+r
 print(c)
 c=30
 print(c)

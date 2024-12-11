@@ -13,7 +13,7 @@ int main(int argc,char* argv[]){
         std::string line;
         while (std::getline(file, line)) 
         {
-            source += line + "LINEEND\n";
+            source += line + ";\n";
         }
     }
     std::string filename="done";

@@ -165,11 +165,6 @@ public:
                     tokens.push_back({Tokentype::not_,"!"});
                     buffer.clear();
                 }
-                else if(buffer=="LINEEND")
-                {
-                    tokens.push_back({Tokentype::endofline,""});
-                    buffer.clear();
-                }
                 else 
                 { 
                     tokens.push_back({Tokentype::identifier,buffer});
@@ -361,6 +356,11 @@ public:
             else if(std::isspace(peek()))
             {
                 consume();
+            }
+            else if(peek()==';')
+            {
+                consume();
+                tokens.push_back({Tokentype::endofline,""});
             }
             else if(peek()=='\0')
             {

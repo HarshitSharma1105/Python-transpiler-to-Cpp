@@ -86,8 +86,6 @@ private:
             stream << "  " << Nodeexpr->expr << ";\n";
         }
     }
-    
-
     void check_for_error(const NodeExpr* Nodeexpr,bool isprint){
         check_for_type_error(Nodeexpr,isprint);
         check_for_unitiliazed_errors(Nodeexpr);
@@ -97,6 +95,10 @@ private:
         [](Token token){ return token.type==Tokentype::float_lit;});
         bool string_lit_check=std::any_of(Nodeexpr->literals.cbegin(),Nodeexpr->literals.cend(),
         [](Token token){ return token.type==Tokentype::string_lit;});
+        bool float_ident_check=std::any_of(Nodeexpr->identifiertokens.cbegin(),Nodeexpr->identifiertokens.cend(),
+        [this](Token token){ return floatmap.count(token.val)!=0;});
+        bool string_ident_check=std::any_of(Nodeexpr->identifiertokens.cbegin(),Nodeexpr->identifiertokens.cend(),
+        [this](Token token){ return stringmap.count(token.val)!=0;});
         if(!isprint)
         {
             if(float_lit_check && string_lit_check)
@@ -116,7 +118,21 @@ private:
             }  
             else 
             {
-                
+                if(string_ident_check && float_ident_check)
+                {
+                   std::cerr << " type error found\n";
+                   exit(EXIT_FAILURE);
+                }
+                else if(float_ident_check)
+                {
+                    bool assign=floatmap.count(Nodeexpr->identifier)==0;
+                    generate_assign_float(Nodeexpr,assign);
+                }
+                else if (string_ident_check)
+                {
+                    bool assign=stringmap.count(Nodeexpr->identifier)==0;
+                    generate_assign_string(Nodeexpr,assign);
+                }
             }
         }
     }
@@ -126,7 +142,7 @@ private:
         if(check)
         {
             std::cerr << "unitialized variable\n" << Nodeexpr->expr;
-            exit(EXIT_FAILURE);
+            //exit(EXIT_FAILURE);
         }
     }
     void open()
