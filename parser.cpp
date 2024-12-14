@@ -142,7 +142,7 @@ private:
         if(check)
         {
             std::cerr << "unitialized variable\n" << Nodeexpr->expr;
-            //exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
     }
     void open()

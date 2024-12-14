@@ -3,6 +3,8 @@ r=10
 c=a+r
 print(c)
 c=30
+c+=3*a
+c/=(r+a)
 print(c)
 d="hello"
 print(d)

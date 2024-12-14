@@ -366,11 +366,10 @@ public:
             {
                 consume();
                 tokens.push_back({Tokentype::endoffile,""});
-                break;
             }
             else
             {
-                std::cerr << "errorrred\n";
+                std::cerr << "errorrred from tokenizer\n";
                 exit(EXIT_FAILURE);
             }
         }
