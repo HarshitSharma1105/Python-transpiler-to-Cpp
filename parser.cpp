@@ -47,6 +47,15 @@ public:
                 generate_assign(Nodeexpr);
                 consume();//EOL
             }  
+            else if(peek().type==Tokentype::for_)
+            {
+                Nodeexpr->expr+=consume().val;//for
+                Nodeexpr->expr+=consume().val;//open paren
+                Nodeexpr->expr+=" float " ;
+                Nodeexpr->identifier=peek().val;
+                Nodeexpr->expr+=consume().val;//identifier
+                //Nodeexpr->expr+=("=0;"+Nodeexpr->identifier+);
+            }
             else{
                 consume();
                 std::cerr << "Not implemented yet\n";
@@ -64,6 +73,10 @@ private:
     void generate_assign(const NodeExpr* Nodeexpr){
         check_for_error(Nodeexpr,false);
     }
+    void generate_for(const NodeExpr* Nodeexpr){
+
+    }
+    
     void generate_assign_string(const NodeExpr* Nodeexpr,bool isassign){
         if(isassign)
         {

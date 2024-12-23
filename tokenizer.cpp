@@ -17,6 +17,9 @@ identifier,
 if_,
 elif_,
 else_,
+for_,
+in_,
+range,
 equals,
 notequals,
 not_,
@@ -73,6 +76,9 @@ void debug(const Tokentype& token){
         case greaterequals:   std::cout << "greaterequals"; break;
         case greater:         std::cout << "greater"; break;
         case or_:             std::cout << "or"; break;
+        case for_:            std::cout << "for"; break;
+        case in_:             std::cout << "in"; break;
+        case range:           std::cout << "range"; break;
         case and_:            std::cout << "and"; break;
         case bitwise_or:      std::cout << "bitwise_or"; break;
         case bitwise_and:     std::cout << "bitwise_and"; break;
@@ -92,7 +98,7 @@ void debug(const Tokentype& token){
         default:              std::cout << "Unknown token"; break;
     }
 }
-void debug(const std::vector<Token> tokens){
+void debug(const std::vector<Token>& tokens){
         for(const Token& token:tokens){
             debug(token.type);
             std::cout<< " " << token.val << std::endl;
@@ -117,7 +123,7 @@ public:
         while(peek()!='@'){
             if(tokens.size() && tokens.back().type==Tokentype::open_double)
             {
-                while (peek()!='"' && peek()!='\0') {
+                while (peek()!='"'){
                     buffer.push_back(consume());
                 }
                 tokens.push_back({Tokentype::string_lit,buffer});
@@ -163,6 +169,22 @@ public:
                 else if(buffer=="not")
                 {
                     tokens.push_back({Tokentype::not_,"!"});
+                    buffer.clear();
+                }
+                else if(buffer=="for")
+                {
+                    tokens.push_back({Tokentype::for_,"for"});
+                    buffer.clear();
+                }
+                else if(buffer=="in")
+                {
+                    tokens.push_back({Tokentype::in_,"in"});
+                    buffer.clear();
+                }
+                else if(buffer=="range")
+                {
+
+                    tokens.push_back({Tokentype::range,"range"});
                     buffer.clear();
                 }
                 else 

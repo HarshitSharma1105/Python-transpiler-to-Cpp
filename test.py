@@ -1,12 +1,2 @@
-a=4
-r=10
-c=a+r
-print(c)
-c=30
-c+=3*a
-c/=(r+a)
-print(c)
-d="hello"
-print(d)
-print(d+"world")
-print((c+4*r+10*a)/(a+r+8*(r+a/c)))
+for i in range(5):
+    print(i)

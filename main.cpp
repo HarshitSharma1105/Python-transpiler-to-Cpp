@@ -1,6 +1,6 @@
 #include<fstream>
-#include <cstdlib>
-#include <cstdio>
+//#include <cstdlib>
+//#include <cstdio>
 #include"parser.cpp"
 
 int main(int argc,char* argv[]){
@@ -33,30 +33,30 @@ int main(int argc,char* argv[]){
     }
 
     // Command to compile the C++ code from stdin
-    std::string compile_command = "g++ -x c++ -o output -";
+    std::string compilecommand = "g++ -x c++ -o output -";
 
     // Open a pipe to the compiler
-    FILE* pipe = popen(compile_command.c_str(), "w");
+    FILE* pipe = popen(compilecommand.c_str(), "w");
     if (!pipe) {
         std::cerr << "Failed to invoke compiler!" << std::endl;
-        return 1;
+        exit(EXIT_FAILURE);
     }
 
     // Write the C++ code to the compiler's stdin
     fwrite(cppsourcecode.c_str(), 1, cppsourcecode.size(), pipe);
 
     // Close the pipe and check the result
-    int result = pclose(pipe);
-    if (result != 0) {
-        std::cerr << "Compilation failed with exit code: " << result << std::endl;
-        return 1;
+    int compile_result = pclose(pipe);
+    if (compile_result != 0) {
+        std::cerr << "Compilation failed with exit code: " << compile_result << std::endl;
+        exit(compile_result);
     }
 
     // Execute the compiled program
     int run_result = std::system("output");
     if (run_result != 0) {
         std::cerr << "Execution failed with exit code: " << run_result << std::endl;
-        return 1;
+        exit(run_result);
     }
     exit(EXIT_SUCCESS);
 }
@@ -70,3 +70,4 @@ int main(int argc,char* argv[]){
     // system(filename.c_str());
     // system(("del "+  cppname).c_str());
     // system(("del "+ filename + ".exe").c_str());
+//}
