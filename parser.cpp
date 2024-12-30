@@ -8,7 +8,7 @@ struct NodeExpr{
     std::string expr;
     std::string identifier;
 };
-
+//100a^2+b^2+19ab-100a-10b=22
 
 class Parser{
 public:
@@ -58,7 +58,7 @@ public:
             }
             else{
                 consume();
-                std::cerr << "Not implemented yet\n";
+                std::cerr << "Not implemented yet from parser\n";
                 break;
             }
         }
@@ -155,7 +155,7 @@ private:
         if(check)
         {
             std::cerr << "unitialized variable\n" << Nodeexpr->expr;
-            exit(EXIT_FAILURE);
+            //exit(EXIT_FAILURE);
         }
     }
     void open()
@@ -184,7 +184,7 @@ private:
             return consume();
         }
         std::cerr << err_msg << std::endl;
-        exit(EXIT_FAILURE);
+        //exit(EXIT_FAILURE);
     }
 
     Token try_consume(const Tokentype& type)

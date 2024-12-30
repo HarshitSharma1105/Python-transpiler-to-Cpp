@@ -14,6 +14,8 @@ integer_lit,
 float_lit,
 assignment,
 identifier,
+True,
+False,
 if_,
 elif_,
 else_,
@@ -65,6 +67,8 @@ void debug(const Tokentype& token){
         case float_lit:       std::cout << "float_lit"; break;
         case assignment:      std::cout << "assignment"; break;
         case identifier:      std::cout << "identifier"; break;
+        case True:            std::cout << "true";break;
+        case False:           std::cout << "false";break;
         case if_:             std::cout << "if"; break;
         case elif_:           std::cout << "elif"; break;
         case else_:           std::cout << "else"; break;
@@ -120,7 +124,7 @@ public:
             }
             return val==0;
         };
-        while(peek()!='@'){
+        while(true){
             if(tokens.size() && tokens.back().type==Tokentype::open_double)
             {
                 while (peek()!='"'){
@@ -139,6 +143,16 @@ public:
                 if(buffer=="print")
                 {
                     tokens.push_back({Tokentype::print,""});
+                    buffer.clear();
+                }
+                if(buffer=="True")
+                {
+                    tokens.push_back({Tokentype::True,"1"});
+                    buffer.clear();
+                }
+                if(buffer=="False")
+                {
+                    tokens.push_back({Tokentype::False,"0"});
                     buffer.clear();
                 }
                 else if(buffer=="if")
@@ -388,6 +402,7 @@ public:
             {
                 consume();
                 tokens.push_back({Tokentype::endoffile,""});
+                break;
             }
             else
             {
