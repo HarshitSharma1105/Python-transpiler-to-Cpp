@@ -47,15 +47,6 @@ public:
                 generate_assign(Nodeexpr);
                 consume();//EOL
             }  
-            else if(peek().type==Tokentype::for_)
-            {
-                Nodeexpr->expr+=consume().val;//for
-                Nodeexpr->expr+=consume().val;//open paren
-                Nodeexpr->expr+=" float " ;
-                Nodeexpr->identifier=peek().val;
-                Nodeexpr->expr+=consume().val;//identifier
-                //Nodeexpr->expr+=("=0;"+Nodeexpr->identifier+);
-            }
             else{
                 consume();
                 std::cerr << "Not implemented yet from parser\n";
@@ -155,7 +146,7 @@ private:
         if(check)
         {
             std::cerr << "unitialized variable\n" << Nodeexpr->expr;
-            //exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
     }
     void open()
@@ -184,7 +175,7 @@ private:
             return consume();
         }
         std::cerr << err_msg << std::endl;
-        //exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
     Token try_consume(const Tokentype& type)
