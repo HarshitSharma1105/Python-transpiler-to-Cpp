@@ -2,13 +2,15 @@
 #include<string>
 #include<iostream>
 enum Tokentype{
-print,
+function,
 open_bracket,
 close_bracket,
 open_paren,
 closed_paren,
 open_double,
 closed_double,
+open_square,
+closed_square,
 string_lit,
 integer_lit,
 float_lit,
@@ -45,6 +47,7 @@ minus,
 mutliply,
 divide,
 endofline,
+indentation,
 endoffile
 };
 
@@ -55,7 +58,7 @@ std::string val;
 
 void debug(const Tokentype& token){
     switch (token) {
-        case print:           std::cout << "print"; break;
+        case function:           std::cout << "function"; break;
         case open_bracket:    std::cout << "open_bracket"; break;
         case close_bracket:   std::cout << "close_bracket"; break;
         case open_paren:      std::cout << "open_paren"; break;
@@ -98,6 +101,7 @@ void debug(const Tokentype& token){
         case divide:          std::cout << "divide"; break;
         case mutliply:        std::cout << "star"; break;
         case endofline:       std::cout << "end of line";break;
+        case indentation:     std::cout << "indentation";break;        
         case endoffile:       std::cout << "end of file";break;
         default:              std::cout << "Unknown token"; break;
     }
@@ -140,17 +144,12 @@ public:
                 {
                     buffer.push_back(consume());
                 }
-                if(buffer=="print")
-                {
-                    tokens.push_back({Tokentype::print,""});
-                    buffer.clear();
-                }
                 if(buffer=="True")
                 {
                     tokens.push_back({Tokentype::True,"1"});
                     buffer.clear();
                 }
-                if(buffer=="False")
+                else if(buffer=="False")
                 {
                     tokens.push_back({Tokentype::False,"0"});
                     buffer.clear();
@@ -209,6 +208,10 @@ public:
             }
             else if(peek()=='(')
             {
+                if(tokens.size() && tokens.back().type==Tokentype::identifier)
+                {
+                    tokens.back().type=Tokentype::function;
+                }
                 tokens.push_back({Tokentype::open_paren,"("});
                 consume();
             }
@@ -217,12 +220,22 @@ public:
                 tokens.push_back({Tokentype::closed_paren,")"});
                 consume();
             }
+            else if (peek()=='[')
+            {
+                tokens.push_back({Tokentype::open_square,"["});
+                consume();
+            }
+            else if (peek()==']')
+            {
+                tokens.push_back({Tokentype::open_square,"]"});
+                consume();
+            }
             else if(peek()=='"')
             {
                 if(check(Tokentype::open_double,Tokentype::closed_double))tokens.push_back({Tokentype::open_double,"\""});
                 else tokens.push_back({Tokentype::closed_double,"\""});
                 consume();
-                buffer.clear();
+                
             }
            
             else if (peek()=='=')
@@ -236,7 +249,6 @@ public:
                     tokens.push_back({Tokentype::assignment,"="});
                 }
                 consume();
-                buffer.clear();
             }
             else if(peek()=='!' )
             {
@@ -250,7 +262,6 @@ public:
                     tokens.push_back({Tokentype::not_,"!"});
                 }
                 consume();
-                buffer.clear();
             }
             else if(peek()=='<')
             {
@@ -265,7 +276,6 @@ public:
                     tokens.push_back({Tokentype::less,"<"});
                 }
                 consume();
-                buffer.clear();
             }
             else if(peek()=='>' )
             {
@@ -279,19 +289,16 @@ public:
                     tokens.push_back({Tokentype::greater,">"});
                 }
                 consume();
-                buffer.clear();
             }
             else if(peek()=='&')
             {
                 tokens.push_back({Tokentype::bitwise_and,"&"});
                 consume();
-                buffer.clear();
             }
             else if(peek()=='|')
             {
                 tokens.push_back({Tokentype::bitwise_or,"|"});
                 consume();
-                buffer.clear();
             }
             else if(peek()=='.')
             {
@@ -307,21 +314,19 @@ public:
                 }
                 else 
                 {
-                    tokens.push_back({Tokentype::dot,""});
+                    tokens.push_back({Tokentype::dot,"."});
                     consume();
                 }
             }
             else if(peek()==':')
             {
-                tokens.push_back({Tokentype::colon,""});
+                tokens.push_back({Tokentype::colon,":"});
                 consume();
-                buffer.clear();
             }
             else if(peek()==',')
             {
-                tokens.push_back({Tokentype::comma,""});
+                tokens.push_back({Tokentype::comma,","});
                 consume();
-                buffer.clear();
             }
             else if(peek()=='+')
             {
@@ -335,7 +340,6 @@ public:
                     tokens.push_back({Tokentype::plus,"+"});
                 }
                 consume();
-                buffer.clear();
             }
             else if(peek()=='-')
             {
@@ -349,7 +353,6 @@ public:
                     tokens.push_back({Tokentype::plus,"-"});
                 }
                 consume();
-                buffer.clear();
             }
             else if(peek()=='*')
             {
@@ -363,7 +366,6 @@ public:
                     tokens.push_back({Tokentype::mutliply,"*"});
                 }
                 consume();
-                buffer.clear();
             }
             else if(peek()=='/')
             {
@@ -377,7 +379,6 @@ public:
                     tokens.push_back({Tokentype::divide,"/"});
                 }
                 consume();
-                buffer.clear();
             }
             else if (std::isdigit(peek())) 
             {
@@ -391,12 +392,19 @@ public:
             }
             else if(std::isspace(peek()))
             {
-                consume();
+                if(tokens.back().type==Tokentype::endofline){
+                    std::string space;
+                    while(std::isspace(peek())){
+                        space+=consume();
+                    }
+                    tokens.push_back({Tokentype::indentation,space});
+                }
+                else consume();
             }
             else if(peek()==';')
             {
                 consume();
-                tokens.push_back({Tokentype::endofline,""});
+                tokens.push_back({Tokentype::endofline,"\n"});
             }
             else if(peek()=='\0')
             {
@@ -410,8 +418,15 @@ public:
                 exit(EXIT_FAILURE);
             }
         }
-        for(Token& token:tokens){
+        for(int i=0;i<tokens.size();i++){
+            Token &token=tokens[i];
             if(token.type==Tokentype::integer_lit)token.type=Tokentype::float_lit;
+            if(token.type==Tokentype::indentation){
+                if(token.val.size()%4){
+                    std::cerr << "indentation error at " << tokens[i+1].val;
+                    //exit(EXIT_FAILURE);
+                }
+            }
         }
         return tokens;
     }

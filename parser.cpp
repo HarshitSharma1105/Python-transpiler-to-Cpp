@@ -16,37 +16,53 @@ public:
     std::string parse()
     {
         open();
+        
         while(peek().type!=Tokentype::endoffile)
         {
+        
             NodeExpr* Nodeexpr=new NodeExpr();
-            if(peek().type==Tokentype::print)
+            if(peek().type==Tokentype::function)
             {
                 consume();
                 try_consume(Tokentype::open_paren,"expected '('");
-                while(peek().type!=Tokentype::endofline){
+                while(peek(1).type!=Tokentype::endofline){
                     Nodeexpr->expr+=peek().val;
                     if(peek().type==Tokentype::identifier)Nodeexpr->identifiertokens.push_back(peek());
                     else if(peek().type==Tokentype::float_lit || peek().type==Tokentype::string_lit) Nodeexpr->literals.push_back(peek());
                     consume();
                 }
-                Nodeexpr->expr.pop_back();
+                try_consume(Tokentype::closed_paren," expected ')'");
                 generate_print(Nodeexpr);
-                //try_consume(Tokentype::closed_paren," expected ')");
                 consume();//EOL
             } 
             else if(peek().type==Tokentype::identifier)
             {
-                Nodeexpr->expr+=consume().val;
-                Nodeexpr->identifier=Nodeexpr->expr;
+                Nodeexpr->identifier=peek().val;
                 while(peek().type!=Tokentype::endofline){
                     Nodeexpr->expr+=peek().val;
-                    if(peek().type==Tokentype::identifier)Nodeexpr->identifiertokens.push_back(peek());
+                    if(peek().type==Tokentype::identifier && peek().val!= Nodeexpr->identifier)Nodeexpr->identifiertokens.push_back(peek());
                     else if(peek().type==Tokentype::float_lit || peek().type==Tokentype::string_lit)Nodeexpr->literals.push_back(peek());
                     consume();
                 }
                 generate_assign(Nodeexpr);
                 consume();//EOL
             }  
+            else if (peek().type==Tokentype::if_ || peek().type==Tokentype::elif_ || peek().type==Tokentype::else_)
+            {
+                std::string expr=consume().val;
+                expr+="(";
+                 while(peek().type!=Tokentype::colon){
+                    expr+=consume().val;
+                }
+                expr+=")\n";
+                stream << expr;
+                try_consume(Tokentype::colon, "expected :\n");
+                consume();//EOL
+            }
+            else if (peek().type==Tokentype::indentation)
+            {
+                consume();
+            }
             else{
                 consume();
                 std::cerr << "Not implemented yet from parser\n";
@@ -137,6 +153,11 @@ private:
                     bool assign=stringmap.count(Nodeexpr->identifier)==0;
                     generate_assign_string(Nodeexpr,assign);
                 }
+                // else 
+                // {
+                //     std::cerr << "WTF did you actually write mf to reach this goddamn branch?\n";
+                //     exit(69);
+                // }
             }
         }
     }

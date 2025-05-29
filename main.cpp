@@ -15,7 +15,7 @@ int main(int argc,char* argv[]){
         std::string line;
         while (std::getline(file, line)) 
         {
-            source += line + ";\n";
+            source += line + ";";
         }
     }
     std::string filename="done";
