@@ -107,10 +107,13 @@ void debug(const Tokentype& token){
     }
 }
 void debug(const std::vector<Token>& tokens){
+        std::cout << "-------\n";
         for(const Token& token:tokens){
             debug(token.type);
-            std::cout<< " " << token.val << std::endl;
+            if(token.type==Tokentype::indentation)std::cout<< " " << token.val.size();
+            std::cout<< " " << token.val << "\n";
         }
+        std::cout << "-------\n";
 }
 
 class Tokenizer{
@@ -395,7 +398,8 @@ public:
                 if(tokens.back().type==Tokentype::endofline){
                     std::string space;
                     while(std::isspace(peek())){
-                        space+=consume();
+                        space+=" ";
+                        consume();
                     }
                     tokens.push_back({Tokentype::indentation,space});
                 }
@@ -404,7 +408,8 @@ public:
             else if(peek()==';')
             {
                 consume();
-                tokens.push_back({Tokentype::endofline,"\n"});
+                tokens.push_back({Tokentype::endofline,"\n"});    
+                if(!std::isspace(peek()))tokens.push_back({Tokentype::indentation,""});     
             }
             else if(peek()=='\0')
             {
@@ -418,15 +423,8 @@ public:
                 exit(EXIT_FAILURE);
             }
         }
-        for(int i=0;i<tokens.size();i++){
-            Token &token=tokens[i];
+        for(Token& token:tokens){
             if(token.type==Tokentype::integer_lit)token.type=Tokentype::float_lit;
-            if(token.type==Tokentype::indentation){
-                if(token.val.size()%4){
-                    std::cerr << "indentation error at " << tokens[i+1].val;
-                    //exit(EXIT_FAILURE);
-                }
-            }
         }
         return tokens;
     }

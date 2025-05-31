@@ -1,6 +1,7 @@
 #include"tokenizer.cpp"
 #include<unordered_set>
 #include<sstream>
+#include <cstdio>
 #include<algorithm>
 struct NodeExpr{
     std::vector<Token> identifiertokens;
@@ -15,11 +16,11 @@ public:
     Parser(const std::vector<Token>& tokens): tokens(tokens){}
     std::string parse()
     {
+        int current_indentation=0;
         open();
         
         while(peek().type!=Tokentype::endoffile)
         {
-        
             NodeExpr* Nodeexpr=new NodeExpr();
             if(peek().type==Tokentype::function)
             {
@@ -51,16 +52,32 @@ public:
             {
                 std::string expr=consume().val;
                 expr+="(";
-                 while(peek().type!=Tokentype::colon){
+                while(peek().type!=Tokentype::colon){
                     expr+=consume().val;
                 }
-                expr+=")\n";
+                expr+=")";
                 stream << expr;
                 try_consume(Tokentype::colon, "expected :\n");
                 consume();//EOL
+                char indentation_errmsg[100];
+                sprintf(indentation_errmsg, "Expected indenation of %d  at %s\n", current_indentation+4, peek(1).val.c_str());
+                if(peek().type==Tokentype::indentation && peek().val.size()!=current_indentation+4)
+                {
+                    std::cerr << indentation_errmsg;
+                    exit(EXIT_FAILURE);
+                }
+                sprintf(indentation_errmsg, "Expected indenation  at %s\n",  peek(1).val.c_str());                
+                try_consume(Tokentype::indentation,indentation_errmsg);
+                current_indentation+=4;
+                stream << "{\n";
             }
             else if (peek().type==Tokentype::indentation)
-            {
+            {   
+                if(peek().val.size()+4==current_indentation)
+                {
+                    stream << "}\n";
+                    current_indentation-=4;
+                }
                 consume();
             }
             else{
@@ -69,6 +86,7 @@ public:
                 break;
             }
         }
+        if(current_indentation!=0)stream << "}\n";
         close();
         return stream.str();
     }   

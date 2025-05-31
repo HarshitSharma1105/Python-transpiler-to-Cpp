@@ -1,6 +1,4 @@
 #include<fstream>
-//#include <cstdlib>
-//#include <cstdio>
 #include"parser.cpp"
 
 int main(int argc,char* argv[]){
@@ -18,7 +16,6 @@ int main(int argc,char* argv[]){
             source += line + ";";
         }
     }
-    std::string filename="done";
     bool debugging=(std::string)argv[2]=="debug";
     source.push_back('\0');
     Tokenizer tokenizer(source);
@@ -60,14 +57,3 @@ int main(int argc,char* argv[]){
     }
     exit(EXIT_SUCCESS);
 }
-
-    // {
-    //     std::ofstream out(cppname);
-    //     out << cppsourcecode;
-    // }
-    // std::string compilecommand="g++ "+filename+ ".cpp "+ "-o " + filename;
-    // system(compilecommand.c_str());
-    // system(filename.c_str());
-    // system(("del "+  cppname).c_str());
-    // system(("del "+ filename + ".exe").c_str());
-//}
